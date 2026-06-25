@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: exobe
+      POSTGRES_PASSWORD: exobe
+      POSTGRES_DB: exobe_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - exobe_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  exobe_postgres_data:

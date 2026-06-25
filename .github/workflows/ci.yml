@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: exobe
+          POSTGRES_PASSWORD: exobe
+          POSTGRES_DB: exobe_platform
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://exobe:exobe@localhost:5432/exobe_platform?schema=public
+      AUTH_SECRET: ci-test-secret
+      NEXTAUTH_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install
+      - run: npm run db:generate --workspace=web
+      - run: npm run db:push --workspace=web
+      - run: npm run lint --workspace=web
+      - run: npm exec --workspace=web -- tsc --noEmit
+      - run: npm run build --workspace=web
