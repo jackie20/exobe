@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CONTAINER } from "@/lib/layout";
 import type { ProductSummary } from "@/lib/api/types";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 async function getProduct(slug: string) {
   return prisma.product.findFirst({

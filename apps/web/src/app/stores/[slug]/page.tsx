@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/product-card";
 import { CONTAINER } from "@/lib/layout";
 import type { ProductSummary } from "@/lib/api/types";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 async function getStore(slug: string) {
   return prisma.store.findUnique({

@@ -11,7 +11,7 @@ import { CONTAINER } from "@/lib/layout";
 import { getCategoryIcon } from "@/lib/category-icons";
 import type { ProductSummary } from "@/lib/api/types";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 type Numeric = number | string | { toString(): string };
 

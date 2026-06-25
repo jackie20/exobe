@@ -6,7 +6,7 @@ import { effectivePrice } from "@/lib/pricing";
 import { ProductCard } from "@/components/product-card";
 import { CONTAINER } from "@/lib/layout";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
