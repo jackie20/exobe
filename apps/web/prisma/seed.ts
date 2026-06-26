@@ -1,9 +1,12 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/generated/prisma/client";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const dbUrl = (process.env.DATABASE_URL ?? "").replace("sslmode=require", "sslmode=no-verify");
+const pool = new Pool({ connectionString: dbUrl });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 function unsplash(id: string, w = 800) {

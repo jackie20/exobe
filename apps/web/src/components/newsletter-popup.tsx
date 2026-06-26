@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
+import { apiFetch } from "@/lib/api/client";
 
 const STORAGE_KEY = "exobe_newsletter_dismissed";
 const SHOW_DELAY_MS = 3500;
@@ -10,6 +11,7 @@ const SHOW_DELAY_MS = 3500;
 export function NewsletterPopup() {
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
 
   useEffect(() => {
@@ -23,10 +25,15 @@ export function NewsletterPopup() {
     setOpen(false);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
+    try {
+      await apiFetch("/api/newsletter", { method: "POST", body: JSON.stringify({ email }) });
+    } catch { /* ignore duplicate / errors silently */ }
     setSubmitted(true);
     window.localStorage.setItem(STORAGE_KEY, "1");
+    setLoading(false);
   }
 
   if (!open) return null;
@@ -136,9 +143,10 @@ export function NewsletterPopup() {
                 />
                 <button
                   type="submit"
-                  className="h-[46px] w-full bg-primary text-[13px] font-bold text-white transition-colors hover:bg-primary/90"
+                  disabled={loading}
+                  className="h-[46px] w-full bg-primary text-[13px] font-bold text-white transition-colors hover:bg-primary/90 disabled:opacity-60"
                 >
-                  Claim My 10% Discount
+                  {loading ? "Subscribing…" : "Claim My 10% Discount"}
                 </button>
               </form>
 

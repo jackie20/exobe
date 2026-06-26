@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { ChevronRight, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CONTAINER } from "@/lib/layout";
@@ -24,6 +25,7 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,6 +44,7 @@ function LoginForm() {
         setError("Invalid email or password. Please try again.");
         return;
       }
+      toast.success("Welcome back!");
       const callback = searchParams.get("callbackUrl") ?? "/account";
       router.push(callback);
       router.refresh();
@@ -111,6 +114,18 @@ function LoginForm() {
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="size-3.5 rounded border-[#ccc] accent-primary"
+                  />
+                  <span className="text-[12px] text-[#666]">Remember me</span>
+                </label>
               </div>
 
               {error && (

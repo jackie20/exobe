@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Truck, RotateCcw, ShieldCheck, Headset, MapPin, Mail, Phone } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CONTAINER } from "@/lib/layout";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 const TRUST_FEATURES = [
   { icon: Truck, title: "Free Delivery", description: "On orders over R500" },
@@ -194,19 +195,7 @@ export async function SiteFooter() {
                 ))}
               </ul>
               <p className="mb-2 text-[13px] font-semibold text-foreground">Newsletter</p>
-              <form className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="h-[40px] w-full border border-[#ececec] bg-[#f7f7f7] px-3 text-[12px] outline-none focus:border-primary"
-                />
-                <button
-                  type="submit"
-                  className="h-[40px] shrink-0 bg-primary px-3 text-[12px] font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  Subscribe
-                </button>
-              </form>
+              <NewsletterForm />
             </div>
           </div>
         </div>

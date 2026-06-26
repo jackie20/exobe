@@ -9,11 +9,16 @@ import {
   Search,
   Heart,
   ShoppingCart,
-  Phone,
   List,
   X,
   ChevronRight,
   ChevronDown,
+  User,
+  Package,
+  MapPin,
+  Settings,
+  Store,
+  LayoutDashboard,
 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { useCategories } from "@/hooks/use-products";
@@ -59,9 +64,11 @@ export function SiteHeader() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isSticky, setIsSticky] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -105,11 +112,14 @@ export function SiteHeader() {
     return () => clearTimeout(timer);
   }, [searchQuery, searchCategory, searchFocused]);
 
-  // Close suggestions when clicking outside
+  // Close suggestions / user menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setShowSuggestions(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -177,12 +187,9 @@ export function SiteHeader() {
               <nav className="flex items-center gap-4">
                 {session?.user ? (
                   <>
-                    <Link
-                      href="/account"
-                      className="transition-colors hover:text-primary"
-                    >
-                      {session.user.name ?? "My account"}
-                    </Link>
+                    <span className="text-foreground font-medium">
+                      Hi, {session.user.name?.split(" ")[0] ?? "there"}
+                    </span>
                     <span className="text-[#ccc]">|</span>
                     <button
                       onClick={() => signOut()}
@@ -213,7 +220,7 @@ export function SiteHeader() {
         </div>
 
         {/* ── header-middle: logo + search + cart icons (desktop) ────── */}
-        <div className="hidden border-b border-[#ececec] bg-white py-[38.5px] lg:block">
+        <div className="hidden border-b border-[#ececec] bg-white py-3 lg:block">
           <div className={CONTAINER}>
             <div className="flex items-center">
               {/* Logo — 17% */}
@@ -383,15 +390,101 @@ export function SiteHeader() {
                 </form>
               </div>
 
-              {/* Right icons — 40.5% */}
-              <div className="flex w-[40.5%] items-center justify-end gap-7 pl-6">
-                {/* Support phone */}
-                <div className="hidden items-center gap-2.5 xl:flex">
-                  <Phone className="size-8 shrink-0 text-primary" strokeWidth={1.5} />
-                  <div className="text-[13px]">
-                    <p className="font-bold text-foreground">Mon-Fri 9AM–5PM</p>
-                    <p className="text-[#999]">+27 70 382 1099</p>
-                  </div>
+              {/* Right icons */}
+              <div className="flex w-[40.5%] items-center justify-end gap-5 pl-6">
+                {/* Account / User */}
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => setUserMenuOpen((o) => !o)}
+                    aria-label="Account"
+                    className="flex flex-col items-center gap-0.5 text-foreground transition-colors hover:text-primary"
+                  >
+                    <User className="size-[24px]" strokeWidth={1.5} />
+                    <span className="hidden text-[11px] xl:block">
+                      {session?.user ? (session.user.name?.split(" ")[0] ?? "Account") : "Account"}
+                    </span>
+                  </button>
+
+                  {userMenuOpen && (
+                    <div className="absolute right-0 top-full z-[300] mt-1 w-[200px] rounded border border-[#ececec] bg-white py-1 shadow-lg">
+                      {session?.user ? (
+                        <>
+                          <div className="border-b border-[#ececec] px-4 py-2.5">
+                            <p className="text-[13px] font-semibold text-foreground truncate">{session.user.name ?? session.user.email}</p>
+                            <p className="text-[11px] text-[#999] capitalize">{(session.user.role as string ?? "customer").toLowerCase()}</p>
+                          </div>
+                          {(session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN") && (
+                            <Link href="/admin" onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                              <LayoutDashboard className="size-4 text-primary" /> Admin Dashboard
+                            </Link>
+                          )}
+                          {session.user.role === "VENDOR" && (
+                            <>
+                              <Link href="/vendor" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <Store className="size-4 text-primary" /> Vendor Dashboard
+                              </Link>
+                              <Link href="/vendor/products" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <Package className="size-4 text-[#999]" /> My Products
+                              </Link>
+                            </>
+                          )}
+                          {(session.user.role === "CUSTOMER" || session.user.role === "VENDOR") && (
+                            <>
+                              <Link href="/account" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <User className="size-4 text-[#999]" /> My Account
+                              </Link>
+                              <Link href="/account/orders" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <Package className="size-4 text-[#999]" /> My Orders
+                              </Link>
+                              <Link href="/wishlist" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <Heart className="size-4 text-[#999]" /> Wishlist
+                              </Link>
+                              <Link href="/account/addresses" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <MapPin className="size-4 text-[#999]" /> Addresses
+                              </Link>
+                              <Link href="/account/settings" onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                                <Settings className="size-4 text-[#999]" /> Settings
+                              </Link>
+                            </>
+                          )}
+                          <div className="border-t border-[#ececec] mt-1">
+                            <button
+                              onClick={() => { signOut(); setUserMenuOpen(false); }}
+                              className="w-full px-4 py-2 text-left text-[13px] font-semibold text-primary hover:bg-[#fff5f5] transition-colors"
+                            >
+                              Logout
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Link href="/login" onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-foreground hover:bg-[#f5f5f5] hover:text-primary transition-colors">
+                            Login
+                          </Link>
+                          <Link href="/register" onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] font-semibold text-primary hover:bg-[#fff5f5] transition-colors">
+                            Create Account
+                          </Link>
+                          <div className="border-t border-[#ececec] px-4 py-2.5">
+                            <p className="text-[11px] text-[#999]">Want to sell?</p>
+                            <Link href="/become-vendor" onClick={() => setUserMenuOpen(false)}
+                              className="text-[12px] font-semibold text-primary hover:underline">
+                              Sell on Exobe →
+                            </Link>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Wishlist */}
@@ -400,7 +493,7 @@ export function SiteHeader() {
                   aria-label="Wishlist"
                   className="flex flex-col items-center gap-0.5 text-foreground transition-colors hover:text-primary"
                 >
-                  <Heart className="size-[26px]" strokeWidth={1.5} />
+                  <Heart className="size-[24px]" strokeWidth={1.5} />
                   <span className="hidden text-[11px] xl:block">Wishlist</span>
                 </Link>
 
@@ -411,7 +504,7 @@ export function SiteHeader() {
                   className="flex items-center gap-2.5 text-foreground transition-colors hover:text-primary"
                 >
                   <div className="relative">
-                    <ShoppingCart className="size-[26px]" strokeWidth={1.5} />
+                    <ShoppingCart className="size-[24px]" strokeWidth={1.5} />
                     {itemCount > 0 && (
                       <span className="cart-item-badge">{itemCount}</span>
                     )}

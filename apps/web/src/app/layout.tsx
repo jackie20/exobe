@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
 import { NewsletterPopup } from "@/components/newsletter-popup";
+import { Toaster } from "sonner";
 
 const mulish = Mulish({
   variable: "--font-mulish",
@@ -35,6 +36,7 @@ export default function RootLayout({
           <SiteFooter />
           <MobileTabBar />
           <NewsletterPopup />
+          <Toaster position="bottom-right" richColors closeButton />
         </Providers>
       </body>
     </html>
