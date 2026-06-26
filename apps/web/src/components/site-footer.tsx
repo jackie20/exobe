@@ -17,13 +17,28 @@ const SOCIAL_LINKS = [
   { label: "X / Twitter", href: "https://x.com/exobeafrica", icon: "x" },
 ];
 
+const FALLBACK_CATEGORIES = [
+  { id: "electronics", name: "Electronics", slug: "electronics" },
+  { id: "fashion", name: "Fashion", slug: "fashion" },
+  { id: "home-kitchen", name: "Home & Kitchen", slug: "home-kitchen" },
+  { id: "beauty", name: "Beauty", slug: "beauty" },
+  { id: "sport", name: "Sport", slug: "sport" },
+  { id: "cellphones-wearables", name: "Cellphones & Wearables", slug: "cellphones-wearables" },
+  { id: "computers-tablets", name: "Computers & Tablets", slug: "computers-tablets" },
+  { id: "toys", name: "Toys", slug: "toys" },
+];
+
 async function getFooterCategories() {
-  return prisma.category.findMany({
-    where: { isActive: true, parentId: null },
-    orderBy: { position: "asc" },
-    take: 8,
-    select: { id: true, name: true, slug: true },
-  });
+  try {
+    return await prisma.category.findMany({
+      where: { isActive: true, parentId: null },
+      orderBy: { position: "asc" },
+      take: 8,
+      select: { id: true, name: true, slug: true },
+    });
+  } catch {
+    return FALLBACK_CATEGORIES;
+  }
 }
 
 function AppleAppStoreIcon() {
