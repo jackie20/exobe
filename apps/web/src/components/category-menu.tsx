@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { LayoutGrid, ChevronRight, ChevronDown } from "lucide-react";
+import { LayoutGrid, ChevronRight, ChevronDown, Loader2 } from "lucide-react";
 import { useCategories } from "@/hooks/use-products";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ const STATIC_DEPARTMENTS = [
 ];
 
 export function CategoryMenu() {
-  const { data } = useCategories();
+  const { data, isLoading } = useCategories();
   const [open, setOpen] = useState(false);
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -88,7 +88,11 @@ export function CategoryMenu() {
       >
         <LayoutGrid className="size-4 shrink-0" />
         <span>Shop by Department</span>
-        <ChevronDown className={cn("size-3.5 shrink-0 transition-transform duration-200", open && "rotate-180")} />
+        {isLoading ? (
+          <Loader2 className="size-3.5 shrink-0 animate-spin" />
+        ) : (
+          <ChevronDown className={cn("size-3.5 shrink-0 transition-transform duration-200", open && "rotate-180")} />
+        )}
       </button>
 
       {/* Dropdown — positioned by the wrapper's relative context */}

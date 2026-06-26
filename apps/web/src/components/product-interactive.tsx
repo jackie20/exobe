@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import { useAddToCart } from "@/hooks/use-cart";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
@@ -196,11 +197,17 @@ export function ProductAddSection({
             (hasVariants && !allSelected)
           }
           onClick={() =>
-            addToCart.mutate({
-              productId,
-              quantity,
-              ...(matchedVariant ? { variantId: matchedVariant.id } : {}),
-            })
+            addToCart.mutate(
+              {
+                productId,
+                quantity,
+                ...(matchedVariant ? { variantId: matchedVariant.id } : {}),
+              },
+              {
+                onSuccess: () => toast.success("Added to cart!"),
+                onError: () => toast.error("Failed to add to cart. Please try again."),
+              }
+            )
           }
         >
           {addToCart.isPending

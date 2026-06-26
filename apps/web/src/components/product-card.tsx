@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, Heart, GitCompare, ShoppingCart, Check } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import { useAddToCart } from "@/hooks/use-cart";
@@ -51,6 +52,10 @@ export function ProductCard({ product }: { product: ProductSummary }) {
         onSuccess: () => {
           setAdded(true);
           setTimeout(() => setAdded(false), 2000);
+          toast.success(`${product.name} added to cart!`);
+        },
+        onError: () => {
+          toast.error("Failed to add to cart. Please try again.");
         },
       }
     );
