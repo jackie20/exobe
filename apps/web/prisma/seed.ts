@@ -11,74 +11,178 @@ function unsplash(id: string, w = 800) {
 }
 
 async function main() {
-  // ── Categories ──────────────────────────────────────────────────────────────
-  const electronics = await prisma.category.upsert({
-    where: { slug: "electronics" },
-    update: {},
-    create: { name: "Electronics", slug: "electronics", position: 1 },
-  });
-  const fashion = await prisma.category.upsert({
-    where: { slug: "fashion" },
-    update: {},
-    create: { name: "Fashion", slug: "fashion", position: 2 },
-  });
-  const homeLiving = await prisma.category.upsert({
-    where: { slug: "home-living" },
-    update: {},
-    create: { name: "Home & Living", slug: "home-living", position: 3 },
-  });
-  const beauty = await prisma.category.upsert({
-    where: { slug: "beauty" },
-    update: {},
-    create: { name: "Beauty & Care", slug: "beauty", position: 4 },
-  });
-  const sports = await prisma.category.upsert({
-    where: { slug: "sports" },
-    update: {},
-    create: { name: "Sports & Outdoors", slug: "sports", position: 5 },
-  });
-  const groceries = await prisma.category.upsert({
-    where: { slug: "groceries" },
-    update: {},
-    create: { name: "Groceries", slug: "groceries", position: 6 },
-  });
-  const babyKids = await prisma.category.upsert({
-    where: { slug: "baby-kids" },
-    update: {},
-    create: { name: "Baby & Kids", slug: "baby-kids", position: 7 },
-  });
-  const automotive = await prisma.category.upsert({
-    where: { slug: "automotive" },
-    update: {},
-    create: { name: "Automotive", slug: "automotive", position: 8 },
-  });
+  // ── Categories (slugs match STATIC_DEPARTMENTS in CategoryMenu) ─────────────
+  const cat = async (name: string, slug: string, position: number) =>
+    prisma.category.upsert({
+      where: { slug },
+      update: { name, position },
+      create: { name, slug, position, isActive: true },
+    });
 
-  // Sub-categories
-  const subcategories = [
-    { name: "Phones & Tablets", slug: "phones-tablets", parentId: electronics.id, position: 1 },
-    { name: "Audio", slug: "audio", parentId: electronics.id, position: 2 },
-    { name: "Wearables", slug: "wearables", parentId: electronics.id, position: 3 },
-    { name: "Cameras", slug: "cameras", parentId: electronics.id, position: 4 },
-    { name: "Men's Clothing", slug: "mens-clothing", parentId: fashion.id, position: 1 },
-    { name: "Women's Clothing", slug: "womens-clothing", parentId: fashion.id, position: 2 },
-    { name: "Shoes", slug: "shoes", parentId: fashion.id, position: 3 },
-    { name: "Bags & Accessories", slug: "bags-accessories", parentId: fashion.id, position: 4 },
-    { name: "Kitchen", slug: "kitchen", parentId: homeLiving.id, position: 1 },
-    { name: "Bedding", slug: "bedding", parentId: homeLiving.id, position: 2 },
-    { name: "Decor", slug: "decor", parentId: homeLiving.id, position: 3 },
-    { name: "Skincare", slug: "skincare", parentId: beauty.id, position: 1 },
-    { name: "Hair Care", slug: "hair-care", parentId: beauty.id, position: 2 },
-    { name: "Fitness", slug: "fitness", parentId: sports.id, position: 1 },
-    { name: "Outdoor", slug: "outdoor", parentId: sports.id, position: 2 },
+  const cellphones   = await cat("Cellphones & Wearables", "cellphones-wearables", 1);
+  const computers    = await cat("Computers & Tablets",    "computers-tablets",    2);
+  const tvAudio      = await cat("TV, Audio & Video",      "tv-audio-video",       3);
+  const beauty       = await cat("Beauty",                 "beauty",               4);
+  const homeKitchen  = await cat("Home & Kitchen",         "home-kitchen",         5);
+  const sport        = await cat("Sport",                  "sport",                6);
+  const fashion      = await cat("Fashion",                "fashion",              7);
+  const babyToddler  = await cat("Baby & Toddler",         "baby-toddler",         8);
+  const health       = await cat("Health",                 "health",               9);
+  const camping      = await cat("Camping & Outdoors",     "camping-outdoors",     10);
+  const toys         = await cat("Toys",                   "toys",                 11);
+  const books        = await cat("Books",                  "books",                12);
+  const garden       = await cat("Garden, Pool & Patio",   "garden-pool-patio",    13);
+  const luggage      = await cat("Luggage & Travel",       "luggage-travel",       14);
+  const pets         = await cat("Pets",                   "pets",                 15);
+  const cameras      = await cat("Cameras",                "cameras",              16);
+  const deals        = await cat("Deals",                  "deals",                17);
+
+  // Keep backwards-compatible alias slugs for existing product connections
+  const electronics  = await cat("Electronics",            "electronics",          99);
+  const homeLiving   = await cat("Home & Living",          "home-living",          99);
+  const groceries    = await cat("Groceries",              "groceries",            99);
+  const automotive   = await cat("Automotive",             "automotive",           99);
+  const babyKids     = await cat("Baby & Kids",            "baby-kids",            99);
+  const sports       = await cat("Sports & Outdoors",      "sports",               99);
+
+  // ── Sub-categories ──────────────────────────────────────────────────────────
+  const subs = [
+    // Cellphones & Wearables
+    { name: "Smartphones",           slug: "smartphones",           parentId: cellphones.id,  position: 1 },
+    { name: "Feature Phones",        slug: "feature-phones",        parentId: cellphones.id,  position: 2 },
+    { name: "Smartwatches",          slug: "smartwatches",          parentId: cellphones.id,  position: 3 },
+    { name: "Fitness Trackers",      slug: "fitness-trackers",      parentId: cellphones.id,  position: 4 },
+    { name: "Tablets",               slug: "tablets-phones",        parentId: cellphones.id,  position: 5 },
+    { name: "Accessories",           slug: "phone-accessories",     parentId: cellphones.id,  position: 6 },
+
+    // Computers & Tablets
+    { name: "Laptops",               slug: "laptops",               parentId: computers.id,   position: 1 },
+    { name: "Desktops",              slug: "desktops",              parentId: computers.id,   position: 2 },
+    { name: "Tablets",               slug: "tablets",               parentId: computers.id,   position: 3 },
+    { name: "Monitors",              slug: "monitors",              parentId: computers.id,   position: 4 },
+    { name: "Keyboards & Mice",      slug: "keyboards-mice",        parentId: computers.id,   position: 5 },
+    { name: "Storage & Memory",      slug: "storage-memory",        parentId: computers.id,   position: 6 },
+    { name: "Networking",            slug: "networking",            parentId: computers.id,   position: 7 },
+
+    // TV, Audio & Video
+    { name: "Televisions",           slug: "televisions",           parentId: tvAudio.id,     position: 1 },
+    { name: "Soundbars",             slug: "soundbars",             parentId: tvAudio.id,     position: 2 },
+    { name: "Headphones",            slug: "headphones",            parentId: tvAudio.id,     position: 3 },
+    { name: "Bluetooth Speakers",    slug: "bluetooth-speakers",    parentId: tvAudio.id,     position: 4 },
+    { name: "Home Theatre",          slug: "home-theatre",          parentId: tvAudio.id,     position: 5 },
+    { name: "Streaming Devices",     slug: "streaming-devices",     parentId: tvAudio.id,     position: 6 },
+
+    // Beauty
+    { name: "Skincare",              slug: "skincare",              parentId: beauty.id,      position: 1 },
+    { name: "Hair Care",             slug: "hair-care",             parentId: beauty.id,      position: 2 },
+    { name: "Makeup",                slug: "makeup",                parentId: beauty.id,      position: 3 },
+    { name: "Fragrances",            slug: "fragrances",            parentId: beauty.id,      position: 4 },
+    { name: "Nail Care",             slug: "nail-care",             parentId: beauty.id,      position: 5 },
+    { name: "Men's Grooming",        slug: "mens-grooming",         parentId: beauty.id,      position: 6 },
+
+    // Home & Kitchen
+    { name: "Kitchen Appliances",    slug: "kitchen-appliances",    parentId: homeKitchen.id, position: 1 },
+    { name: "Cookware",              slug: "cookware",              parentId: homeKitchen.id, position: 2 },
+    { name: "Bedding",               slug: "bedding",               parentId: homeKitchen.id, position: 3 },
+    { name: "Furniture",             slug: "furniture",             parentId: homeKitchen.id, position: 4 },
+    { name: "Lighting",              slug: "lighting",              parentId: homeKitchen.id, position: 5 },
+    { name: "Storage & Organisation",slug: "storage-organisation",  parentId: homeKitchen.id, position: 6 },
+    { name: "Cleaning Supplies",     slug: "cleaning-supplies",     parentId: homeKitchen.id, position: 7 },
+
+    // Sport
+    { name: "Gym Equipment",         slug: "gym-equipment",         parentId: sport.id,       position: 1 },
+    { name: "Running",               slug: "running",               parentId: sport.id,       position: 2 },
+    { name: "Yoga & Pilates",        slug: "yoga-pilates",          parentId: sport.id,       position: 3 },
+    { name: "Team Sports",           slug: "team-sports",           parentId: sport.id,       position: 4 },
+    { name: "Cycling",               slug: "cycling",               parentId: sport.id,       position: 5 },
+    { name: "Swimming",              slug: "swimming",              parentId: sport.id,       position: 6 },
+    { name: "Sports Nutrition",      slug: "sports-nutrition",      parentId: sport.id,       position: 7 },
+
+    // Fashion
+    { name: "Men's Clothing",        slug: "mens-clothing",         parentId: fashion.id,     position: 1 },
+    { name: "Women's Clothing",      slug: "womens-clothing",       parentId: fashion.id,     position: 2 },
+    { name: "Shoes",                 slug: "shoes",                 parentId: fashion.id,     position: 3 },
+    { name: "Bags & Accessories",    slug: "bags-accessories",      parentId: fashion.id,     position: 4 },
+    { name: "Jewellery",             slug: "jewellery",             parentId: fashion.id,     position: 5 },
+    { name: "Sunglasses",            slug: "sunglasses",            parentId: fashion.id,     position: 6 },
+    { name: "Watches",               slug: "watches",               parentId: fashion.id,     position: 7 },
+
+    // Baby & Toddler
+    { name: "Baby Clothing",         slug: "baby-clothing",         parentId: babyToddler.id, position: 1 },
+    { name: "Feeding",               slug: "feeding",               parentId: babyToddler.id, position: 2 },
+    { name: "Nappies & Wipes",       slug: "nappies-wipes",         parentId: babyToddler.id, position: 3 },
+    { name: "Prams & Car Seats",     slug: "prams-car-seats",       parentId: babyToddler.id, position: 4 },
+    { name: "Nursery",               slug: "nursery",               parentId: babyToddler.id, position: 5 },
+    { name: "Toys & Learning",       slug: "baby-toys-learning",    parentId: babyToddler.id, position: 6 },
+
+    // Health
+    { name: "Vitamins & Supplements",slug: "vitamins-supplements",  parentId: health.id,      position: 1 },
+    { name: "Medical Equipment",     slug: "medical-equipment",     parentId: health.id,      position: 2 },
+    { name: "Personal Care",         slug: "personal-care",         parentId: health.id,      position: 3 },
+    { name: "Weight Management",     slug: "weight-management",     parentId: health.id,      position: 4 },
+    { name: "Eye Care",              slug: "eye-care",              parentId: health.id,      position: 5 },
+
+    // Camping & Outdoors
+    { name: "Tents & Shelters",      slug: "tents-shelters",        parentId: camping.id,     position: 1 },
+    { name: "Sleeping Bags",         slug: "sleeping-bags",         parentId: camping.id,     position: 2 },
+    { name: "Hiking",                slug: "hiking",                parentId: camping.id,     position: 3 },
+    { name: "Braai & Cooking",       slug: "braai-cooking",         parentId: camping.id,     position: 4 },
+    { name: "Outdoor Clothing",      slug: "outdoor-clothing",      parentId: camping.id,     position: 5 },
+
+    // Toys
+    { name: "Action Figures",        slug: "action-figures",        parentId: toys.id,        position: 1 },
+    { name: "Board Games",           slug: "board-games",           parentId: toys.id,        position: 2 },
+    { name: "Educational Toys",      slug: "educational-toys",      parentId: toys.id,        position: 3 },
+    { name: "Remote Control",        slug: "remote-control",        parentId: toys.id,        position: 4 },
+    { name: "Outdoor Play",          slug: "outdoor-play",          parentId: toys.id,        position: 5 },
+    { name: "Puzzles",               slug: "puzzles",               parentId: toys.id,        position: 6 },
+
+    // Books
+    { name: "Fiction",               slug: "fiction",               parentId: books.id,       position: 1 },
+    { name: "Non-Fiction",           slug: "non-fiction",           parentId: books.id,       position: 2 },
+    { name: "Children's Books",      slug: "childrens-books",       parentId: books.id,       position: 3 },
+    { name: "Academic & Textbooks",  slug: "academic-textbooks",    parentId: books.id,       position: 4 },
+    { name: "Business & Finance",    slug: "business-finance",      parentId: books.id,       position: 5 },
+
+    // Garden, Pool & Patio
+    { name: "Garden Tools",          slug: "garden-tools",          parentId: garden.id,      position: 1 },
+    { name: "Outdoor Furniture",     slug: "outdoor-furniture",     parentId: garden.id,      position: 2 },
+    { name: "Pool & Spa",            slug: "pool-spa",              parentId: garden.id,      position: 3 },
+    { name: "Plants & Seeds",        slug: "plants-seeds",          parentId: garden.id,      position: 4 },
+    { name: "Irrigation",            slug: "irrigation",            parentId: garden.id,      position: 5 },
+
+    // Luggage & Travel
+    { name: "Suitcases",             slug: "suitcases",             parentId: luggage.id,     position: 1 },
+    { name: "Backpacks",             slug: "backpacks",             parentId: luggage.id,     position: 2 },
+    { name: "Travel Accessories",    slug: "travel-accessories",    parentId: luggage.id,     position: 3 },
+    { name: "Handbags",              slug: "handbags",              parentId: luggage.id,     position: 4 },
+
+    // Pets
+    { name: "Dog Supplies",          slug: "dog-supplies",          parentId: pets.id,        position: 1 },
+    { name: "Cat Supplies",          slug: "cat-supplies",          parentId: pets.id,        position: 2 },
+    { name: "Pet Food",              slug: "pet-food",              parentId: pets.id,        position: 3 },
+    { name: "Aquatics",              slug: "aquatics",              parentId: pets.id,        position: 4 },
+    { name: "Pet Healthcare",        slug: "pet-healthcare",        parentId: pets.id,        position: 5 },
+
+    // Cameras
+    { name: "DSLR & Mirrorless",     slug: "dslr-mirrorless",       parentId: cameras.id,     position: 1 },
+    { name: "Action Cameras",        slug: "action-cameras",        parentId: cameras.id,     position: 2 },
+    { name: "Camera Lenses",         slug: "camera-lenses",         parentId: cameras.id,     position: 3 },
+    { name: "Drones",                slug: "drones",                parentId: cameras.id,     position: 4 },
+    { name: "Camera Accessories",    slug: "camera-accessories",    parentId: cameras.id,     position: 5 },
   ];
 
-  for (const sub of subcategories) {
+  for (const sub of subs) {
     await prisma.category.upsert({
       where: { slug: sub.slug },
-      update: {},
-      create: sub,
+      update: { name: sub.name, position: sub.position, parentId: sub.parentId },
+      create: { ...sub, isActive: true },
     });
   }
+
+  // Alias: keep old slugs active but hidden (position 99)
+  const _cameras = cameras; void _cameras;
+  const _deals = deals; void _deals;
 
   // ── Brands ──────────────────────────────────────────────────────────────────
   const brandData = [
@@ -755,7 +859,7 @@ async function main() {
   });
 
   console.log("✅ Seed complete:", {
-    categories: 8 + subcategories.length,
+    categories: 17 + subs.length,
     brands: brandData.length,
     products: products.length + vendorProducts.length,
     shipping: standardShipping.name,
