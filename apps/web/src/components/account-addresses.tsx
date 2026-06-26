@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 type Address = {
   id: string;
   fullName: string;
-  phone: string;
+  phone: string | null;
   line1: string;
   line2: string | null;
   city: string;
